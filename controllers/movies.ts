@@ -14,4 +14,20 @@ const getMovies = ({ response }: { response: any }) => {
   };
 };
 
-export { getMovies };
+//@desc Get a movie
+//@route GET /api/v1/movies/:id
+const getMovie = ({ response }: { response: any }) => {};
+
+//@desc Add a movie
+//@route POST /api/v1/movie
+const addMovie = ({ response }: { response: any }) => {};
+
+//@desc Add a movie
+//@route POST /api/v1/movie
+const updateMovie = ({ response }: { response: any }) => {};
+
+//@desc Add a movie
+//@route POST /api/v1/movie
+const deleteMovie = ({ response }: { response: any }) => {};
+
+export { getMovies, getMovie, addMovie, updateMovie, deleteMovie };
