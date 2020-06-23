@@ -16,18 +16,26 @@ const getMovies = ({ response }: { response: any }) => {
 
 //@desc Get a movie
 //@route GET /api/v1/movies/:id
-const getMovie = ({ response }: { response: any }) => {};
+const getMovie = ({ response }: { response: any }) => {
+  response.body = "Get movie";
+};
 
 //@desc Add a movie
 //@route POST /api/v1/movie
-const addMovie = ({ response }: { response: any }) => {};
+const addMovie = ({ response }: { response: any }) => {
+  response.body = "Add movie";
+};
 
 //@desc Add a movie
 //@route POST /api/v1/movie
-const updateMovie = ({ response }: { response: any }) => {};
+const updateMovie = ({ response }: { response: any }) => {
+  response.body = "Update movie";
+};
 
 //@desc Add a movie
 //@route POST /api/v1/movie
-const deleteMovie = ({ response }: { response: any }) => {};
+const deleteMovie = ({ response }: { response: any }) => {
+  response.body = "delete movie";
+};
 
 export { getMovies, getMovie, addMovie, updateMovie, deleteMovie };
