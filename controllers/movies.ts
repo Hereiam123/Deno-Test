@@ -60,7 +60,6 @@ const addMovie = async ({
     const movie = body.value;
     movie.id = v4.generate();
     movies.push(movie);
-    console.log("Fired add 2");
     response.status = 201;
     response.body = {
       success: true,
@@ -71,8 +70,32 @@ const addMovie = async ({
 
 //@desc Update a movie
 //@route PUT /api/v1/movies/:id
-const updateMovie = ({ response }: { response: any }) => {
-  response.body = "Update movie";
+const updateMovie = async ({
+  params,
+  request,
+  response,
+}: {
+  params: { id: string };
+  request: any;
+  response: any;
+}) => {
+  const movie: Movie | undefined = movies.find((m) => m.id == params.id);
+  if (movie) {
+    const body = await request.body();
+    const updateData: { name?: string; description?: string; rating?: number } =
+      body.value;
+    movies = movies.map((m) =>
+      m.id === params.id ? { ...m, ...updateData } : m
+    );
+    response.status = 200;
+    response.body = { success: true, data: movies };
+  } else {
+    response.status = 404;
+    response.body = {
+      success: false,
+      msg: "No movie found",
+    };
+  }
 };
 
 //@desc Delete a movie
