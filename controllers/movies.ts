@@ -100,8 +100,24 @@ const updateMovie = async ({
 
 //@desc Delete a movie
 //@route DELETE /api/v1/movies/:id
-const deleteMovie = ({ response }: { response: any }) => {
-  response.body = "delete movie";
+const deleteMovie = ({
+  params,
+  response,
+}: {
+  params: { id: string };
+  response: any;
+}) => {
+  const filteredMovies: Movie[] | undefined = movies.filter(
+    (m) => m.id !== params.id
+  );
+  if (filteredMovies.length !== movies.length) {
+    movies = filteredMovies;
+    response.status = 200;
+    response.body = { success: true, data: movies };
+  } else {
+    response.status = 401;
+    response.body = { success: false, data: "Movie id not found" };
+  }
 };
 
 export { getMovies, getMovie, addMovie, updateMovie, deleteMovie };
