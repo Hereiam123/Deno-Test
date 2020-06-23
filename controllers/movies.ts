@@ -1,3 +1,4 @@
+import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { Movie } from "../types.ts";
 
 let movies: Movie[] = [
@@ -16,24 +17,66 @@ const getMovies = ({ response }: { response: any }) => {
 
 //@desc Get a movie
 //@route GET /api/v1/movies/:id
-const getMovie = ({ response }: { response: any }) => {
-  response.body = "Get movie";
+const getMovie = ({
+  params,
+  response,
+}: {
+  params: { id: string };
+  response: any;
+}) => {
+  const movie: Movie | undefined = movies.find((m) => m.id == params.id);
+  if (movie) {
+    response.status = 200;
+    response.body = {
+      success: true,
+      data: movie,
+    };
+  } else {
+    response.status = 404;
+    response.body = {
+      success: false,
+      msg: "No movie found",
+    };
+  }
 };
 
 //@desc Add a movie
-//@route POST /api/v1/movie
-const addMovie = ({ response }: { response: any }) => {
-  response.body = "Add movie";
+//@route POST /api/v1/movies
+const addMovie = async ({
+  request,
+  response,
+}: {
+  request: any;
+  response: any;
+}) => {
+  const body = await request.body();
+  if (!request.hasBody) {
+    response.status = 400;
+    response.body = {
+      success: false,
+      msg: "No data",
+    };
+  } else {
+    const movie = body.value;
+    movie.id = v4.generate();
+    movies.push(movie);
+    console.log("Fired add 2");
+    response.status = 201;
+    response.body = {
+      success: true,
+      data: movie,
+    };
+  }
 };
 
-//@desc Add a movie
-//@route POST /api/v1/movie
+//@desc Update a movie
+//@route PUT /api/v1/movies/:id
 const updateMovie = ({ response }: { response: any }) => {
   response.body = "Update movie";
 };
 
-//@desc Add a movie
-//@route POST /api/v1/movie
+//@desc Delete a movie
+//@route DELETE /api/v1/movies/:id
 const deleteMovie = ({ response }: { response: any }) => {
   response.body = "delete movie";
 };
