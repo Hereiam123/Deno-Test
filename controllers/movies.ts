@@ -1,9 +1,7 @@
 import { Client } from "https://deno.land/x/postgres/mod.ts";
 import { dbCreds } from "../config.ts";
-import { Movie } from "../types.ts";
 
 const client = new Client(dbCreds);
-let movies: Movie[] = [];
 
 //@desc Get all movies
 //@route GET /api/v1/movies
