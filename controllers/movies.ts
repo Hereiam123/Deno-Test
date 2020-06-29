@@ -46,18 +46,29 @@ const getMovie = async ({
   try {
     await client.connect();
     const result = await client.query(
-      `SELECT * FROM movies WHERE id = ${params.id}`
+      "SELECT * FROM movies WHERE id = $1",
+      params.id
     );
-    let movie: any = new Object();
-    result.rows.map((m) => {
-      result.rowDescription.columns.map((el, index) => {
-        movie[el.name] = m[index];
+
+    if (result.rows.toString() === "") {
+      response.status = 404;
+      response.body = {
+        success: false,
+        msg: `No movie found with id of ${params.id}`,
+      };
+      return;
+    } else {
+      let movie: any = new Object();
+      result.rows.map((m) => {
+        result.rowDescription.columns.map((el, index) => {
+          movie[el.name] = m[index];
+        });
       });
-    });
-    response.body = {
-      success: true,
-      data: movie,
-    };
+      response.body = {
+        success: true,
+        data: movie,
+      };
+    }
   } catch (err) {
     response.status = 500;
     response.body = {
@@ -122,7 +133,7 @@ const updateMovie = async ({
   request: any;
   response: any;
 }) => {
-  const movie: Movie | undefined = movies.find((m) => m.id == params.id);
+  let movie = "";
   if (movie) {
     const body = await request.body();
     const updateData: { name?: string; description?: string; rating?: number } =
