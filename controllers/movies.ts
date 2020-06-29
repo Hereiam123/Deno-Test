@@ -1,5 +1,10 @@
+import { Client } from "https://deno.land/x/postgres/mod.ts";
+import { dbCreds } from "../config.ts";
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { Movie } from "../types.ts";
+
+const client = new Client(dbCreds);
+//await client.connect();
 
 let movies: Movie[] = [
   { id: "1", name: "Movie one", description: "This is movie one", rating: 9 },
