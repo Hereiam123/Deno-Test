@@ -205,6 +205,7 @@ const deleteMovie = async ({
         success: true,
         data: `Deletion successful for movie at id of ${params.id}`,
       };
+      response.status = 204;
     } catch (err) {
       response.status = 500;
       response.body = {
