@@ -133,22 +133,46 @@ const updateMovie = async ({
   request: any;
   response: any;
 }) => {
-  let movie = "";
-  if (movie) {
-    const body = await request.body();
-    const updateData: { name?: string; description?: string; rating?: number } =
-      body.value;
-    movies = movies.map((m) =>
-      m.id === params.id ? { ...m, ...updateData } : m
-    );
-    response.status = 200;
-    response.body = { success: true, data: movies };
-  } else {
+  await getMovie({ params: { id: params.id }, response });
+
+  if (response.status === 404) {
     response.status = 404;
     response.body = {
       success: false,
-      msg: "No movie found",
+      msg: response.body.msg,
     };
+    return;
+  } else {
+    if (!request.hasBody) {
+      response.status = 400;
+      response.body = { success: false, msg: "No data" };
+    } else {
+      //Get request body values
+      const body = await request.body();
+      const movie = body.value;
+      try {
+        await client.connect();
+        const result = await client.query(
+          "UPDATE movies SET name=$2, description=$3, price=$4 WHERE id = $1",
+          params.id,
+          movie.name,
+          movie.description,
+          movie.price
+        );
+        response.body = {
+          success: true,
+          data: `Update successful for movie at id of ${params.id}`,
+        };
+      } catch (err) {
+        response.status = 500;
+        response.body = {
+          success: false,
+          msg: err.toString(),
+        };
+      } finally {
+        await client.end();
+      }
+    }
   }
 };
 
