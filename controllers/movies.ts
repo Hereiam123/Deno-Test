@@ -1,9 +1,9 @@
 import { Client } from "https://deno.land/x/postgres/mod.ts";
 import { dbCreds } from "../config.ts";
-import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { Movie } from "../types.ts";
 
 const client = new Client(dbCreds);
+let movies: Movie[] = [];
 
 //@desc Get all movies
 //@route GET /api/v1/movies
@@ -30,32 +30,42 @@ const getMovies = async ({ response }: { response: any }) => {
       msg: err.toString(),
     };
   } finally {
-    client.end();
+    await client.end();
   }
 };
 
 //@desc Get a movie
 //@route GET /api/v1/movies/:id
-const getMovie = ({
+const getMovie = async ({
   params,
   response,
 }: {
   params: { id: string };
   response: any;
 }) => {
-  const movie: Movie | undefined = movies.find((m) => m.id == params.id);
-  if (movie) {
-    response.status = 200;
+  try {
+    await client.connect();
+    const result = await client.query(
+      `SELECT * FROM movies WHERE id = ${params.id}`
+    );
+    let movie: any = new Object();
+    result.rows.map((m) => {
+      result.rowDescription.columns.map((el, index) => {
+        movie[el.name] = m[index];
+      });
+    });
     response.body = {
       success: true,
       data: movie,
     };
-  } else {
-    response.status = 404;
+  } catch (err) {
+    response.status = 500;
     response.body = {
       success: false,
-      msg: "No movie found",
+      msg: err.toString(),
     };
+  } finally {
+    await client.end();
   }
 };
 
