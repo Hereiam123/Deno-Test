@@ -8,10 +8,6 @@ const app = new Application();
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-router.get("/api/v1/movies", ({ response }: { response: any }) => {
-  response.body = "Hello world";
-});
-
 console.log(`Server running on port ${port}`);
 
 await app.listen({ port: port });
