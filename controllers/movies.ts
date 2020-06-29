@@ -63,13 +63,28 @@ const addMovie = async ({
     };
   } else {
     const movie = body.value;
-    movie.id = v4.generate();
-    movies.push(movie);
-    response.status = 201;
-    response.body = {
-      success: true,
-      data: movie,
-    };
+    try {
+      await client.connect();
+      const result = await client.query(
+        "INSERT INTO movies(name,description,price) VALUES($1,$2,$3)",
+        movie.name,
+        movie.description,
+        movie.price
+      );
+      response.body = {
+        success: true,
+        data: movie,
+      };
+    } catch (err) {
+      console.log(err);
+      response.status = 500;
+      response.body = {
+        success: false,
+        msg: err.toString(),
+      };
+    } finally {
+      await client.end();
+    }
   }
 };
 
