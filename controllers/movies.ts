@@ -4,20 +4,34 @@ import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { Movie } from "../types.ts";
 
 const client = new Client(dbCreds);
-//await client.connect();
-
-let movies: Movie[] = [
-  { id: "1", name: "Movie one", description: "This is movie one", rating: 9 },
-  { id: "2", name: "Movie two", description: "This is movie two", rating: 5 },
-];
 
 //@desc Get all movies
 //@route GET /api/v1/movies
-const getMovies = ({ response }: { response: any }) => {
-  response.body = {
-    success: true,
-    data: movies,
-  };
+const getMovies = async ({ response }: { response: any }) => {
+  try {
+    await client.connect();
+    const result = await client.query("SELECT * FROM movies");
+    const movies = new Array();
+    result.rows.map((m) => {
+      let obj: any = new Object();
+      result.rowDescription.columns.map((el, index) => {
+        obj[el.name] = m[index];
+      });
+      movies.push(obj);
+    });
+    response.body = {
+      success: true,
+      data: movies,
+    };
+  } catch (err) {
+    response.status = 500;
+    response.body = {
+      success: false,
+      msg: err.toString(),
+    };
+  } finally {
+    client.end();
+  }
 };
 
 //@desc Get a movie
@@ -76,7 +90,6 @@ const addMovie = async ({
         data: movie,
       };
     } catch (err) {
-      console.log(err);
       response.status = 500;
       response.body = {
         success: false,
