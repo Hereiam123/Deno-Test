@@ -178,23 +178,42 @@ const updateMovie = async ({
 
 //@desc Delete a movie
 //@route DELETE /api/v1/movies/:id
-const deleteMovie = ({
+const deleteMovie = async ({
   params,
   response,
 }: {
   params: { id: string };
   response: any;
 }) => {
-  const filteredMovies: Movie[] | undefined = movies.filter(
-    (m) => m.id !== params.id
-  );
-  if (filteredMovies.length !== movies.length) {
-    movies = filteredMovies;
-    response.status = 200;
-    response.body = { success: true, data: movies };
+  await getMovie({ params: { id: params.id }, response });
+
+  if (response.status === 404) {
+    response.status = 404;
+    response.body = {
+      success: false,
+      msg: response.body.msg,
+    };
+    return;
   } else {
-    response.status = 401;
-    response.body = { success: false, data: "Movie id not found" };
+    try {
+      await client.connect();
+      const result = await client.query(
+        "DELETE FROM movies WHERE id = $1",
+        params.id
+      );
+      response.body = {
+        success: true,
+        data: `Deletion successful for movie at id of ${params.id}`,
+      };
+    } catch (err) {
+      response.status = 500;
+      response.body = {
+        success: false,
+        msg: err.toString(),
+      };
+    } finally {
+      await client.end();
+    }
   }
 };
 
